@@ -1,4 +1,4 @@
-# Inicializar el número de particiones y su tamaño
+# Inicializar el número de particiones y su tamaño prueba 
 num_particiones = int(input("Ingrese el número de particiones: "))
 particiones = {}
 
