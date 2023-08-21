@@ -1,34 +1,68 @@
-# Inicializar el número de particiones y su tamaño prueba 
-num_particiones = int(input("Ingrese el número de particiones: "))
-particiones = {}
+from collections import deque
 
-# Solicitar información de cada partición
-for i in range(num_particiones):
-    tamano_particion = int(input(f"Ingrese el tamaño de la partición {i + 1}: "))
-    particiones[i + 1] = {'tamano': tamano_particion, 'trabajo': None}
+particiones = [['Libre', 100, None], ['Libre', 100, None], ['Libre', 100, None], ['Libre', 600, None], ['Libre', 1200, None]]
 
+# Crear una cola para mantener un seguimiento de los elementos que no se pudieron agregar
+cola_trabajos_pendientes = deque()  # Declarar como cola
+trabajos = []  # Lista de trabajos
+fragmentacion_interna = [0] * 5  # Seguir la fragmentación_interna
+
+# Lista de trabajos
 while True:
-    # Solicitar información del trabajo
-    nombre_trabajo = input("\nIngrese el nombre del trabajo (o 'salir' para terminar): ")
-    if nombre_trabajo.lower() == 'salir':
+    nombre_trabajo = input("Ingresa el nombre del proyecto (Si deseas dejar de introducir elementos escribe fin o N): ")
+    if nombre_trabajo == "fin" or nombre_trabajo=="N":
         break
-    tamano_trabajo = int(input("Ingrese el tamaño del trabajo: "))
+    tamano_trabajo = int(input("Ingresa el tamaño del trabajo: "))
+    trabajos.append({"nombre": nombre_trabajo, "tamano": tamano_trabajo})
 
-    # Determinar si el trabajo cabe en alguna partición
-    particion_asignada = None
-    for num_particion, particion in particiones.items():
-        if tamano_trabajo <= particion['tamano'] and particion['trabajo'] is None:
-            particion_asignada = num_particion
-            particiones[num_particion]['trabajo'] = nombre_trabajo
+for trabajo in trabajos:
+    particion_asignada = None  # Sirve para ver si pudo agregar
+    for i, particion in enumerate(particiones):
+        if not particion[2] and trabajo["tamano"] <= particion[1]:  # Verificar que no esté ocupado y que quepa
+            particion_asignada = i
+            particiones[i][0] = trabajo["nombre"]
+            particiones[i][2] = trabajo['tamano']
+            fragmentacion_interna[i] = particion[1] - trabajo['tamano']
+            print("                 Asignación Exitosa")
+            print(f"El trabajo '{trabajo['nombre']}' se ha cargado en la partición {i + 1}.")
             break
+    if particion_asignada is None:
+        cola_trabajos_pendientes.append(trabajo)
+        print(f"El trabajo '{trabajo['nombre']}' ha sido agregado a la cola de trabajos pendientes.")
 
-    if particion_asignada is not None:
-        print(f"El trabajo '{nombre_trabajo}' se ha cargado en la partición {particion_asignada}.")
-    else:
-        print(f"No se pudo cargar el trabajo '{nombre_trabajo}' en ninguna partición.")
 
+    # Estado de la memoria después de que se agregara o no un trabajo
+    print("Estado en memoria")
+    fragmentacion_externa = 0
+    for i, particion in enumerate(particiones):
+        trabajo = particion[0] if particion[2] is not None else "Libre"
+        fragmentacion = particion[1] - (particion[2] if particion[2] is not None else 0)  # fragmentación_interna
+        print(f"Partición {i + 1}: Tamaño = {particion[1]}, Trabajo = {trabajo}, Fragmentación = {fragmentacion}")
+        if particion[0] == "Libre":
+            fragmentacion_externa += particion[1]
+
+print(f"Fragmentación Externa Total = {fragmentacion_externa}")
+
+# Liberar espacios
+for i, particion in enumerate(particiones):
+    if cola_trabajos_pendientes and cola_trabajos_pendientes[0]['tamano'] <= particion[1]:
+        trabajo_pendiente = cola_trabajos_pendientes.popleft()
+        particiones[i][0] = trabajo_pendiente['nombre']
+        particiones[i][2] = trabajo_pendiente['tamano']
+        fragmentacion_interna[i] = particion[1] - trabajo_pendiente['tamano']
+        print(f"El trabajo '{trabajo_pendiente['nombre']}' se ha cargado en la partición {i + 1}.")
+
+# Calcular la fragmentación interna total
+fragmentacion_interna_total = sum(fragmentacion_interna)
+
+# Imprimir el estado final de las particiones después de liberar la memoria
 print("\nEstado final de las particiones:")
-for num_particion, particion in particiones.items():
-    trabajo = particion['trabajo'] if particion['trabajo'] is not None else "Libre"
-    print(f"Partición {num_particion}: Tamaño = {particion['tamano']}, Trabajo = {trabajo}")
+for i, particion in enumerate(particiones):
+    trabajo = particion[0] if particion[2] is not None else "Libre"
+    fragmentacion = particion[1] - (particion[2] if particion[2] is not None else 0)
+    print(f"Partición {i + 1}: Tamaño = {particion[1]}, Trabajo = {trabajo}, Fragmentación = {fragmentacion}")
+
+# Imprimir la fragmentación interna total
+print(f"Fragmentación Interna Total = {fragmentacion_interna_total}")
+
 
