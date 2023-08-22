@@ -10,7 +10,7 @@ fragmentacion_interna = [0] * 5  # Seguir la fragmentación_interna
 # Lista de trabajos
 while True:
     nombre_trabajo = input("Ingresa el nombre del proyecto (Si deseas dejar de introducir elementos escribe fin o N): ")
-    if nombre_trabajo.lower() == "fin":
+    if nombre_trabajo.lower() == "fin" or nombre_trabajo== "N":
         break
     tamano_trabajo = int(input(f"Ingresa el tamaño del trabajo '{nombre_trabajo}': "))
     trabajos.append({"nombre": nombre_trabajo, "tamano": tamano_trabajo})
