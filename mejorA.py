@@ -1,6 +1,6 @@
 from collections import deque
 
-particiones = [['Libre', 100, None], ['Libre', 100, None], ['Libre', 100, None], ['Libre', 600, None], ['Libre', 1200, None]]
+particiones = [['Libre', 1000, None], ['Libre', 100, None], ['Libre', 100, None], ['Libre', 600, None], ['Libre', 1200, None]]
 
 # Crear una cola para mantener un registro de los elementos que no se pudieron agregar
 cola_trabajos_pendientes = deque()  # Declarar como cola
